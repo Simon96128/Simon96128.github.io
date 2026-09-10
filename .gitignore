@@ -4,3 +4,5 @@ _site/
 .video_agent/
 _prev_*.html
 *.webm
+vendor/
+.bundle/

@@ -1,31 +1,92 @@
----
-layout: compress
----
-
-{% include base_path %}
-
 <!doctype html>
-<html lang="{{ site.locale | slice: 0,2 }}" class="no-js">
-  <head>
-    {% include head.html %}
-    {% include head/custom.html %}
-  </head>
-
-  <body>
-
-    {% include browser-upgrade.html %}
-    {% include masthead.html %}
-
-    {{ content }}
-
-    <div class="page__footer">
-      <footer>
-        {% include footer/custom.html %}
-        {% include footer.html %}
-      </footer>
+<html lang="{{ site.lang | default: 'zh' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} · {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  {% if page.description %}
+    <meta name="description" content="{{ page.description }}">
+  {% else %}
+    <meta name="description" content="{{ site.description }}">
+  {% endif %}
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1330'/%3E%3Ctext x='32' y='45' font-size='38' text-anchor='middle' fill='%23ffd88a'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+  <meta name="theme-color" content="#0d1330">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  {% feed_meta %}
+  {% seo %}
+  <script>
+    // 星图导航：给当前页的导航项打上 ✦ 标记
+    (function () {
+      var mark = function () {
+        var norm = function (u) { var p = u.replace(/\/index\.html$/, "/").replace(/\/+$/, ""); return p || "/"; };
+        var path = norm(location.pathname);
+        document.querySelectorAll(".masthead nav a").forEach(function (a) {
+          var href = a.getAttribute("href");
+          if (!href) { return; }
+          var target = norm(href);
+          if (target === path || (target !== "/" && path.indexOf(target) === 0)) {
+            a.classList.add("active");
+          }
+        });
+      };
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", mark);
+      } else {
+        mark();
+      }
+    })();
+    // 页面切换兜底：不支持跨文档 View Transitions 的浏览器，改用「淡出 → 跳转 → 入场」
+    (function () {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { return; }
+      var nativeVT = false;
+      try {
+        sheets: for (var s = 0; s < document.styleSheets.length; s++) {
+          var rules;
+          try { rules = document.styleSheets[s].cssRules; } catch (err) { continue; }
+          for (var r = 0; r < rules.length; r++) {
+            var t = rules[r].cssText || "";
+            if (t.indexOf("@view-transition") === 0) { nativeVT = true; break sheets; }
+          }
+        }
+      } catch (err) {}
+      if (nativeVT) { return; }
+      var go = function (url) {
+        var main = document.getElementById("content");
+        if (!main) { location.href = url; return; }
+        main.style.animation = "page-out .18s ease both";
+        setTimeout(function () { location.href = url; }, 170);
+      };
+      document.addEventListener("click", function (e) {
+        var a = e.target && e.target.closest ? e.target.closest("a") : null;
+        if (!a || a.target === "_blank" || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) { return; }
+        var href = a.getAttribute("href") || "";
+        if (!href || href.charAt(0) === "#") { return; }
+        var url = new URL(a.href, location.href);
+        if (url.origin !== location.origin || url.href === location.href) { return; }
+        e.preventDefault();
+        go(url.href);
+      }, true);
+    })();
+  </script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+      <nav>
+        <a href="{{ '/' | relative_url }}">首页</a>
+        <a href="{{ '/blog/' | relative_url }}">博客</a>
+        <a href="{{ '/cv/' | relative_url }}">简历</a>
+      </nav>
     </div>
-
-    {% include scripts.html %}
-
-  </body>
+  </header>
+  <main id="content">
+    {{ content }}
+  </main>
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      © {{ site.time | date: "%Y" }} {{ site.title }} · <a href="https://github.com/{{ site.github_username }}" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </footer>
+</body>
 </html>

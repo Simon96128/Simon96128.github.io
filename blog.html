@@ -1,0 +1,26 @@
+---
+layout: default
+title: 博客
+permalink: /blog/
+---
+
+<h1>博客</h1>
+
+{% assign posts_by_year = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}
+{% if site.posts.size > 0 %}
+  {% for year in posts_by_year %}
+  <section class="year-group">
+    <h2>{{ year.name }}</h2>
+    <ul class="post-list">
+      {% for post in year.items %}
+      <li>
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        <span class="post-meta">{{ post.date | date: "%m-%d" }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
+{% else %}
+<p class="empty-note">还没有文章。</p>
+{% endif %}
