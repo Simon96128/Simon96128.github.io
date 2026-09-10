@@ -10,7 +10,7 @@
     <meta name="description" content="{{ site.description }}">
   {% endif %}
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1330'/%3E%3Ctext x='32' y='45' font-size='38' text-anchor='middle' fill='%23ffd88a'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
-  <meta name="theme-color" content="#0d1330">
+  <meta name="theme-color" content="#10173a">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   {% feed_meta %}
   {% seo %}
@@ -70,6 +70,11 @@
   </script>
 </head>
 <body>
+  <div class="nebula nebula--violet"></div>
+  <div class="nebula nebula--cyan"></div>
+  <div class="nebula nebula--magenta"></div>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
   <header class="masthead">
     <div class="masthead-inner">
       <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
@@ -80,13 +85,17 @@
       </nav>
     </div>
   </header>
+
   <main id="content">
     {{ content }}
   </main>
+
   <footer class="site-footer">
     <div class="site-footer-inner">
       © {{ site.time | date: "%Y" }} {{ site.title }} · <a href="https://github.com/{{ site.github_username }}" target="_blank" rel="noopener">GitHub</a>
     </div>
   </footer>
+
+  <script src="{{ '/assets/js/starfield.js' | relative_url }}" defer></script>
 </body>
 </html>

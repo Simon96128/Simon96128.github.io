@@ -4,21 +4,25 @@ title: 博客
 permalink: /blog/
 ---
 
-<h1>博客</h1>
+<div class="page-hero">
+  <h1>博客</h1>
+  <p class="sub">所有文章，按年份归档</p>
+</div>
 
 {% assign posts_by_year = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}
 {% if site.posts.size > 0 %}
   {% for year in posts_by_year %}
   <section class="year-group">
     <h2>{{ year.name }}</h2>
-    <ul class="post-list">
+    <div class="card-grid">
       {% for post in year.items %}
-      <li>
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-        <span class="post-meta">{{ post.date | date: "%m-%d" }}</span>
-      </li>
+      <a class="card" href="{{ post.url | relative_url }}">
+        <div class="card-title">{{ post.title }}</div>
+        <div class="card-meta">{{ post.date | date: "%m-%d" }}{% if post.categories %} · {{ post.categories | join: " / " }}{% endif %}</div>
+        {% if post.excerpt %}<p class="card-excerpt">{{ post.excerpt | strip_html | truncate: 60 }}</p>{% endif %}
+      </a>
       {% endfor %}
-    </ul>
+    </div>
   </section>
   {% endfor %}
 {% else %}
