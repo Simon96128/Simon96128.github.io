@@ -1,0 +1,6 @@
+_site/
+.DS_Store
+.v2c/
+.video_agent/
+_prev_*.html
+*.webm
