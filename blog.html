@@ -10,21 +10,16 @@ permalink: /blog/
 </div>
 
 {% assign posts_by_year = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}
-{% if site.posts.size > 0 %}
-  {% for year in posts_by_year %}
-  <section class="year-group">
-    <h2>{{ year.name }}</h2>
-    <div class="card-grid">
-      {% for post in year.items %}
-      <a class="card" href="{{ post.url | relative_url }}">
-        <div class="card-title">{{ post.title }}</div>
-        <div class="card-meta">{{ post.date | date: "%m-%d" }}{% if post.categories %} · {{ post.categories | join: " / " }}{% endif %}</div>
-        {% if post.excerpt %}<p class="card-excerpt">{{ post.excerpt | strip_html | truncate: 60 }}</p>{% endif %}
-      </a>
-      {% endfor %}
-    </div>
-  </section>
-  {% endfor %}
-{% else %}
-<p class="empty-note">还没有文章。</p>
-{% endif %}
+{% for year in posts_by_year %}
+<section class="year-group">
+  <h2>{{ year.name }}</h2>
+  <nav class="post-list">
+    {% for post in year.items %}
+    <a class="post-row" href="{{ post.url | relative_url }}">
+      <span class="post-title">{{ post.title }}</span>
+      <span class="post-date">{{ post.date | date: "%m.%d" }}</span>
+    </a>
+    {% endfor %}
+  </nav>
+</section>
+{% endfor %}
