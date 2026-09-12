@@ -103,7 +103,7 @@ main#content {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding: 48px 0;
+  padding: 48px 48px;
   background: url("../images/bg-hero.jpg") center / cover no-repeat;
 }
 .hero-kicker {
