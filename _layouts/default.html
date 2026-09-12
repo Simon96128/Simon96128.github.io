@@ -11,7 +11,8 @@
   {% endif %}
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f7f3ea'/%3E%3Ccircle cx='32' cy='32' r='13' fill='%232f5cff'/%3E%3C/svg%3E">
   <meta name="theme-color" content="#f7f3ea">
-  <link rel="stylesheet" href="{{ '/assets/css/style.css?v=32' | relative_url }}">
+  <link rel="preload" as="image" href="{{ '/assets/images/bg-hero.jpg' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css?v=79' | relative_url }}">
 
   <link rel="alternate" type="application/atom+xml" title="Simon Yin" href="/atom.xml">
   <script>
@@ -29,9 +30,19 @@
       } else { mark(); }
     })();
   </script>
+  <style id="critical-bg">
+    /* 首屏关键样式：画作与暗幕在 CSS 加载前即生效，消除切换闪烁 */
+    html { background: #f7f3ea; }
+    body { background: transparent; }
+    .painting-img {
+      background-image: url("{{ '/assets/images/bg-hero.jpg' | relative_url }}");
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
 </head>
-<body>
-  <div class="painting" aria-hidden="true"></div>
+<body class="bg-{{ page.bg | default: 'home' }}{% if page.layout == 'post' %} post-page{% endif %}">
+  <div class="painting" aria-hidden="true"><div class="painting-img"></div></div>
 
   <header class="masthead">
     <div class="masthead-inner">
@@ -48,6 +59,6 @@
     {{ content }}
   </main>
 
-  <script src="{{ '/assets/js/stage.js?v=6' | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/stage.js?v=34' | relative_url }}" defer></script>
 </body>
 </html>

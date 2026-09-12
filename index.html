@@ -1,25 +1,35 @@
 ---
 layout: default
+bg: home
 ---
 
-<section class="stage" id="stage">
-  <div class="stage-art" aria-hidden="true"></div>
-  <div class="stage-veil" aria-hidden="true"></div>
-  <div class="stage-vignette" aria-hidden="true"></div>
-  <div class="stage-hint">滚动 · 沿小路深入</div>
-</section>
+<section class="stage" id="stage"></section>
+<div class="scroll-pad" aria-hidden="true"></div>
 
-<section class="arrived">
-  <div class="arrived-inner">
-    <h2 class="arrived-head">文章</h2>
-    <nav class="float-list">
-      {% for post in site.posts limit:8 %}
+<section class="story" id="posts">
+  <div class="story-inner">
+    <h2 class="story-head">文章</h2>
+    <nav class="float-list" id="postList">
+      {% for post in site.posts %}
       <a class="float-item" href="{{ post.url | relative_url }}">
         <span class="fi-date">{{ post.date | date: "%Y.%m.%d" }}</span>
         <span class="fi-title">{{ post.title }}</span>
       </a>
       {% endfor %}
     </nav>
-    <p class="float-more"><a href="{{ '/blog/' | relative_url }}">全部文章</a></p>
   </div>
 </section>
+
+<section class="story story--contact" id="contact">
+  <div class="story-inner">
+    <h2 class="story-head">联系</h2>
+    <nav class="post-list">
+      <a class="post-row" href="https://github.com/{{ site.github_username }}" target="_blank" rel="noopener">
+        <span class="post-title">GitHub</span>
+        <span class="post-date">github.com/{{ site.github_username }}</span>
+      </a>
+    </nav>
+  </div>
+</section>
+
+<div class="cue" id="cue" aria-hidden="true">滚动 · 沿小路深入</div>

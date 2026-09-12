@@ -2,8 +2,10 @@
 layout: default
 title: 联系
 permalink: /contact/
+bg: contact
 ---
 
+<div class="page-body">
 <div class="page-hero">
   <h1>联系</h1>
   <p class="sub">欢迎交流</p>
@@ -15,3 +17,4 @@ permalink: /contact/
     <span class="contact-value">github.com/{{ site.github_username }}</span>
   </a>
 </section>
+</div>
