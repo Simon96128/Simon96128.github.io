@@ -9,6 +9,8 @@
   --line: #e8e8ec;
   --accent: #2f5cff;
   --accent-strong: #1e46e0;
+  --band-ink: #f0ead8;
+  --masthead-h: clamp(84px, 8vw, 150px);
 }
 
 * { box-sizing: border-box; }
@@ -25,8 +27,10 @@ body {
   font-size: 16px;
   line-height: 1.75;
   color: var(--text);
-  background: var(--bg) url("../images/bg.jpg") center / cover no-repeat fixed;
+  background: var(--bg) url("../images/bg-body.jpg") top center / cover no-repeat fixed;
 }
+
+/* 蓝色撕纸带本身就是导航栏 */
 
 ::selection { background: rgba(47, 92, 255, 0.16); }
 
@@ -36,20 +40,19 @@ body {
   border-radius: 2px;
 }
 
-/* ---------- 顶栏 ---------- */
+/* ---------- 顶栏：蓝色撕纸带 ---------- */
 .masthead {
-  border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: url("../images/nav-band.jpg") center / 100% 100% no-repeat;
   position: sticky;
   top: 0;
   z-index: 10;
+  height: var(--masthead-h);
 }
 .masthead-inner {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 15px 28px;
+  padding: 0 28px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -58,27 +61,27 @@ body {
 .site-title {
   font-size: 1.05rem;
   font-weight: 800;
-  color: var(--text);
+  color: #fff;
   text-decoration: none;
   letter-spacing: 0.01em;
 }
 .site-title::after {
   content: ".";
-  color: var(--accent);
+  color: var(--band-ink);
 }
-.site-title:hover { color: var(--accent-strong); }
+.site-title:hover { color: var(--band-ink); }
 .masthead nav { display: flex; gap: 26px; }
 .masthead nav a {
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
   font-size: 0.95rem;
   transition: color 0.2s ease;
 }
-.masthead nav a:hover { color: var(--text); }
+.masthead nav a:hover { color: #fff; }
 .masthead nav a.active {
-  color: var(--text);
+  color: #fff;
   font-weight: 600;
-  border-bottom: 2px solid var(--accent);
+  border-bottom: 2px solid var(--band-ink);
   padding-bottom: 2px;
 }
 
@@ -93,7 +96,7 @@ main#content {
 
 /* ---------- 首页 Hero ---------- */
 .hero {
-  min-height: calc(100vh - 57px);
+  min-height: calc(100vh - var(--masthead-h));
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -380,9 +383,9 @@ main#content {
 
 /* ---------- 移动端 ---------- */
 @media (max-width: 640px) {
-  .masthead-inner { padding: 14px 20px; }
+  .masthead-inner { padding: 0 20px; }
   main#content { padding: 0 20px; }
-  .hero { min-height: calc(100vh - 53px); }
+  .hero { min-height: calc(100vh - var(--masthead-h)); }
   .card-grid { grid-template-columns: 1fr; }
   .section { padding: 48px 0; }
 }
