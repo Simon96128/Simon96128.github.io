@@ -57,9 +57,8 @@ body {
   background: url("../images/nav-band.png") center / 100% 100% no-repeat;
 }
 .masthead-inner {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 0 28px;
+  width: 100%;
+  padding: 0 clamp(24px, 4.5vw, 72px);
   height: 100%;
   display: flex;
   align-items: center;
@@ -373,9 +372,9 @@ pre code { background: none; border: 0; padding: 0; }
   bottom: 22px;
   margin: 0;
   text-align: center;
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.22em;
+  font-family: var(--font-nav);
+  font-size: 0.92rem;
+  letter-spacing: 0.24em;
   color: rgba(242, 237, 221, 0.85);
   text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
   pointer-events: none;
