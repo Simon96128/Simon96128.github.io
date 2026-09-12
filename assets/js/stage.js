@@ -7,6 +7,7 @@
 
   var art = document.querySelector('.stage-art');
   var veil = document.querySelector('.stage-veil');
+  var vignette = document.querySelector('.stage-vignette');
   var gh = document.querySelector('.hero-github');
   var hint = document.querySelector('.stage-hint');
   var arrived = document.querySelector('.arrived');
@@ -19,12 +20,9 @@
   function clamp(v) { return Math.min(1, Math.max(0, v)); }
 
   function apply() {
-    if (art) {
-      art.style.transform = 'scale(' + (1 + p * 2.4).toFixed(4) + ')';
-      var blur = (p * 1.6).toFixed(2);
-      art.style.filter = p > 0.02 ? 'blur(' + blur + 'px)' : '';
-    }
-    if (veil) { veil.style.opacity = (p * 0.85).toFixed(3); }
+    if (art) { art.style.transform = 'scale(' + (1 + p * 2.4).toFixed(4) + ')'; }
+    if (art) { art.style.setProperty('--blur-o', p.toFixed(3)); }
+    if (vignette) { vignette.style.opacity = (p * 0.9).toFixed(3); }
     if (hint) { hint.style.opacity = Math.max(0, 1 - p * 8).toFixed(3); }
     if (gh) { gh.style.opacity = Math.max(0, 1 - p * 1.6).toFixed(3); }
     if (arrived) {

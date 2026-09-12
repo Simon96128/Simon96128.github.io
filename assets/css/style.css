@@ -356,18 +356,19 @@ pre code { background: none; border: 0; padding: 0; }
   will-change: transform;
 }
 .stage-veil { display: none; }
-.stage-on .stage-veil {
+/* 暗角层（与柔焦分离，避免互相干扰） */
+.stage-on .stage-vignette {
   display: block;
   position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  /* 径向暗角（四周虚化收拢视线）+ 底部渐暗（托住文字） */
   background:
-    radial-gradient(ellipse 78% 78% at 72% 57%, rgba(20, 24, 18, 0) 42%, rgba(20, 24, 18, 0.62) 100%),
-    linear-gradient(180deg, rgba(20, 24, 18, 0) 30%, rgba(20, 24, 18, 0.42) 100%);
-  backdrop-filter: blur(0px);
+    radial-gradient(ellipse 78% 78% at 72% 57%, rgba(20, 24, 18, 0) 45%, rgba(20, 24, 18, 0.58) 100%),
+    linear-gradient(180deg, rgba(20, 24, 18, 0) 32%, rgba(20, 24, 18, 0.38) 100%);
+  opacity: 0;
 }
+.stage-vignette { display: none; }
 .stage-on .stage { position: relative; z-index: 2; }
 .stage-hint {
   position: absolute;
@@ -421,11 +422,17 @@ pre code { background: none; border: 0; padding: 0; }
   border-radius: 12px;
   color: #f2eddd;
   text-decoration: none;
-  transition: background 0.25s ease, transform 0.25s ease;
 }
-.float-item:hover {
-  background: rgba(14, 17, 12, 0.4);
-  transform: translateX(6px);
+.float-item .fi-title,
+.float-item .fi-date {
+  transition: color 0.22s ease;
+}
+/* hover：仅文字变色，不做色块 */
+.float-item:hover .fi-title {
+  color: #ffd88a;
+}
+.float-item:hover .fi-date {
+  color: rgba(255, 216, 138, 0.78);
 }
 .fi-date {
   font-family: var(--mono);
@@ -471,4 +478,16 @@ pre code { background: none; border: 0; padding: 0; }
 .cover-text {
   position: relative;
   z-index: 3;
+}
+
+/* 径向柔焦：模糊版画作叠在上层，遮罩只在四周显示（中心露出清晰底层） */
+.stage-on .stage-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../images/bg-hero-blur.jpg") center / cover no-repeat;
+  -webkit-mask-image: radial-gradient(ellipse 64% 64% at 72% 57%, transparent 55%, #000 96%);
+  mask-image: radial-gradient(ellipse 64% 64% at 72% 57%, transparent 55%, #000 96%);
+  opacity: var(--blur-o, 0);
+  pointer-events: none;
 }
