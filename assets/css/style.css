@@ -96,6 +96,7 @@ main#content {
 
 /* ---------- 首页 Hero ---------- */
 .hero {
+  position: relative;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   min-height: calc(100vh - var(--masthead-h));
@@ -106,6 +107,19 @@ main#content {
   padding: 48px 48px;
   background: url("../images/bg-hero.jpg") center / cover no-repeat;
 }
+
+/* 左下角 GitHub 角标 */
+.hero-github {
+  position: absolute;
+  left: 48px;
+  bottom: 24px;
+  color: rgba(240, 234, 216, 0.82);
+  text-decoration: none;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  transition: color 0.2s ease;
+}
+.hero-github:hover { color: #fff; }
 
 /* ---------- 区块 ---------- */
 .section { padding: 64px 0; border-top: 1px solid var(--line); }
