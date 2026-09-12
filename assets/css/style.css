@@ -3,7 +3,7 @@
 
 :root {
   --bg: #ffffff;
-  --bg-soft: #f7f7f8;
+  --bg-soft: #f2eee2;
   --text: #16181d;
   --muted: #6f7680;
   --line: #e8e8ec;
@@ -27,7 +27,7 @@ body {
   font-size: 16px;
   line-height: 1.75;
   color: var(--text);
-  background: var(--bg) url("../images/bg-body.jpg") top center / cover no-repeat fixed;
+  background: #f5f1e6;
 }
 
 /* 蓝色撕纸带本身就是导航栏 */
@@ -96,12 +96,15 @@ main#content {
 
 /* ---------- 首页 Hero ---------- */
 .hero {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
   min-height: calc(100vh - var(--masthead-h));
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
   padding: 48px 0;
+  background: url("../images/bg-hero.jpg") center / cover no-repeat;
 }
 .hero-kicker {
   margin: 0 0 12px;
