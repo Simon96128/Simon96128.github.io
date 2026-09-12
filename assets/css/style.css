@@ -106,50 +106,6 @@ main#content {
   padding: 48px 48px;
   background: url("../images/bg-hero.jpg") center / cover no-repeat;
 }
-.hero-kicker {
-  margin: 0 0 12px;
-  color: var(--accent);
-  letter-spacing: 0.24em;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-.hero-title {
-  margin: 0 0 30px;
-  font-size: clamp(2.9rem, 8vw, 5.4rem);
-  font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-  color: var(--text);
-}
-.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
-.btn-pill {
-  display: inline-block;
-  padding: 12px 28px;
-  border-radius: 999px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-  border: 1px solid var(--line);
-  background: var(--bg);
-  color: var(--text);
-  transition: all 0.22s ease;
-}
-.btn-pill:hover {
-  border-color: var(--text);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(22, 24, 29, 0.1);
-}
-.btn-pill--primary {
-  background: var(--text);
-  border-color: var(--text);
-  color: #fff;
-}
-.btn-pill--primary:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  box-shadow: 0 8px 24px rgba(47, 92, 255, 0.28);
-}
 
 /* ---------- 区块 ---------- */
 .section { padding: 64px 0; border-top: 1px solid var(--line); }
@@ -341,13 +297,6 @@ main#content {
   main#content { animation: page-in 0.5s cubic-bezier(0.2, 0.6, 0.2, 1) both; }
   ::view-transition-old(root) { animation: vt-out 0.26s ease both; }
   ::view-transition-new(root) { animation: vt-in 0.45s cubic-bezier(0.2, 0.6, 0.2, 1) both; }
-  .hero-title, .hero-kicker, .hero-actions {
-    animation: rise 0.8s cubic-bezier(0.2, 0.6, 0.2, 1) both;
-  }
-  .hero-kicker { animation-delay: 0.05s; }
-  .hero-title { animation-delay: 0.12s; }
-  .hero-actions { animation-delay: 0.25s; }
-}
 @keyframes page-in {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: none; }
@@ -362,8 +311,6 @@ main#content {
   from { opacity: 0; transform: scale(1.012) translateY(6px); }
   to   { opacity: 1; transform: none; }
 }
-@keyframes rise {
-  from { opacity: 0; transform: translateY(22px); }
   to   { opacity: 1; transform: none; }
 }
 
