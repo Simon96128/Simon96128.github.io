@@ -25,7 +25,7 @@ body {
   font-size: 16px;
   line-height: 1.75;
   color: var(--text);
-  background: var(--bg);
+  background: var(--bg) url("../images/bg.jpg") center / cover no-repeat fixed;
 }
 
 ::selection { background: rgba(47, 92, 255, 0.16); }
