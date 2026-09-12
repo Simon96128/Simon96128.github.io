@@ -6,3 +6,5 @@ _prev_*.html
 *.webm
 vendor/
 .bundle/
+Gemfile
+Gemfile.lock
