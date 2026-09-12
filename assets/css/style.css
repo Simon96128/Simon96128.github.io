@@ -66,9 +66,10 @@ body {
   gap: 16px;
 }
 .site-title {
-  font-family: var(--font-zine);
-  font-size: 1.02rem;
-  font-weight: 700;
+  font-family: var(--font-nav);
+  font-size: 1.12rem;
+  font-weight: 400;
+  -webkit-text-stroke: 0.4px currentColor;
   color: #fff;
   text-decoration: none;
   letter-spacing: 0.01em;
@@ -384,17 +385,6 @@ pre code { background: none; border: 0; padding: 0; }
   text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
   pointer-events: none;
 }
-.hero-github {
-  position: fixed;
-  left: 48px;
-  bottom: 22px;
-  color: rgba(240, 234, 216, 0.82);
-  text-decoration: none;
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
-  transition: color 0.2s ease;
-}
-.hero-github:hover { color: #fff; }
 
 /* 抵达层：透明，文章直接浮在暗化的画作上 */
 .arrived {
@@ -491,3 +481,38 @@ pre code { background: none; border: 0; padding: 0; }
   opacity: var(--blur-o, 0);
   pointer-events: none;
 }
+
+/* ---------- 联系页 ---------- */
+.contact-sheet {
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  border-top: 0;
+  padding: 0 0 40px;
+}
+.contact-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 6px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+  transition: padding-left 0.22s ease;
+}
+a.contact-row:hover { padding-left: 14px; }
+a.contact-row:hover .contact-label { color: var(--accent-strong); }
+.contact-label {
+  font-family: var(--font-nav);
+  font-size: 1.05rem;
+  transition: color 0.22s ease;
+}
+.contact-value {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  color: var(--muted);
+  word-break: break-all;
+  text-align: right;
+}
+.contact-row--plain { opacity: 0.75; }

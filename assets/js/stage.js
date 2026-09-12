@@ -8,7 +8,6 @@
   var art = document.querySelector('.stage-art');
   var veil = document.querySelector('.stage-veil');
   var vignette = document.querySelector('.stage-vignette');
-  var gh = document.querySelector('.hero-github');
   var hint = document.querySelector('.stage-hint');
   var arrived = document.querySelector('.arrived');
   var inner = arrived ? arrived.querySelector('.arrived-inner') : null;
@@ -24,7 +23,6 @@
     if (art) { art.style.setProperty('--blur-o', p.toFixed(3)); }
     if (vignette) { vignette.style.opacity = (p * 0.9).toFixed(3); }
     if (hint) { hint.style.opacity = Math.max(0, 1 - p * 8).toFixed(3); }
-    if (gh) { gh.style.opacity = Math.max(0, 1 - p * 1.6).toFixed(3); }
     if (arrived) {
       arrived.style.opacity = arrivedOn ? '1' : clamp((p - 0.25) / 0.30).toFixed(3);
       arrived.style.pointerEvents = arrivedOn ? 'auto' : 'none';
