@@ -2,6 +2,7 @@ _site/
 .DS_Store
 .v2c/
 .video_agent/
+.workbuddy/
 _prev_*.html
 *.webm
 vendor/

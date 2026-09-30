@@ -40,7 +40,6 @@ html { background: var(--paper); }
   inset: 0;
   background: url("../images/bg-hero.jpg") center / cover no-repeat;
   transform-origin: 50% 50%;
-  view-transition-name: painting;
   will-change: transform;
 }
 .painting-img { transform: translateX(var(--px, 0%)) scale(var(--sc, 1)); transform-origin: 72% 57%; transition: transform 0.62s cubic-bezier(.28,.68,.2,1); }
@@ -91,10 +90,10 @@ body {
 .site-title:hover { color: #ffd88a; }
 .site-nav { display: flex; gap: 24px; }
 .site-nav a {
+  position: relative;
   font-family: var(--font-nav);
   font-weight: 400;
   letter-spacing: 0.12em;
-  font-size: 1.12rem;
   -webkit-text-stroke: 0.4px currentColor;
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.82);
@@ -102,11 +101,21 @@ body {
   transition: color 0.2s ease;
 }
 .site-nav a:hover { color: #fff; }
-.site-nav a.active {
-  color: #fff;
-  border-bottom: 2px solid #ffd88a;
-  padding-bottom: 2px;
+/* 下划线用伪元素 scaleX，才能做滑入过渡（border-bottom 无法过渡） */
+.site-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 2px;
+  background: #ffd88a;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.3s cubic-bezier(.25,.7,.2,1);
 }
+.site-nav a.active { color: #fff; }
+.site-nav a.active::after { transform: scaleX(1); }
 
 /* ---------- 主体 ---------- */
 main#content {
@@ -279,6 +288,8 @@ pre code { background: none; border: 0; padding: 0; }
   mask-image: radial-gradient(ellipse 46% 46% at 66% 54%, transparent 40%, #000 92%);
   opacity: var(--blur-o, 0);
   pointer-events: none;
+  /* 提升为合成层：逐帧改 opacity 时只做合成，不重绘全屏渐变 */
+  will-change: opacity;
 }
 
 /* ---------- 联系页 ---------- */
@@ -353,32 +364,10 @@ a.contact-row:hover .contact-label { color: var(--accent-strong); }
 }
 .page-body .year-group h2 { color: #4a463c; text-shadow: 0 0 10px rgba(247,243,234,.9); }
 
-/* ============================================================
-   页面切换：左右平移（纯 JS 驱动，所有浏览器可用）
-   内容位移大、背景位移小 → 视差感
-   ============================================================ */
-@media (prefers-reduced-motion: no-preference) {
-  html.enter-fwd main#content { animation: sl-in-r 0.6s cubic-bezier(.25,.7,.2,1) both; }
-  html.enter-back main#content { animation: sl-in-l 0.6s cubic-bezier(.25,.7,.2,1) both; }
-  html.enter-fwd .painting     { animation: bg-in-r 0.6s cubic-bezier(.25,.7,.2,1) both; }
-  html.enter-back .painting    { animation: bg-in-l 0.6s cubic-bezier(.25,.7,.2,1) both; }
-  html.leave-fwd main#content  { animation: sl-out-l 0.42s ease-in both; }
-  html.leave-back main#content { animation: sl-out-r 0.42s ease-in both; }
-  html.leave-fwd .painting     { animation: bg-out-l 0.42s ease-in both; }
-  html.leave-back .painting    { animation: bg-out-r 0.42s ease-in both; }
-}
-@keyframes sl-in-r  { from { transform: translateX(9%);  opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes sl-in-l  { from { transform: translateX(-9%); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes sl-out-l { to { transform: translateX(-9%);  opacity: 0; } }
-@keyframes sl-out-r { to { transform: translateX(9%);   opacity: 0; } }
-@keyframes bg-in-r  { from { transform: translateX(5%);  } to { transform: none; } }
-@keyframes bg-in-l  { from { transform: translateX(-5%); } to { transform: none; } }
-@keyframes bg-out-l { to { transform: translateX(-5%); } }
-@keyframes bg-out-r { to { transform: translateX(5%);  } }
-
-/* 连续平移期间：禁用内容入场动画，让背景成为唯一动效 */
-html.panning main#content { animation: none !important; }
-/* 首页舞台模式下，painting-img 由 stage.js 控制缩放，不用页面平移过渡 */
+/* 首页舞台模式下：画作缩放由 stage.js 逐帧写入内联 transform，
+   必须关掉 CSS transition —— 否则每帧变更都被 0.62s 过渡平滑，
+   缩放会永远滞后于滚动、松手后还要继续放大。
+   stage.js 在进入首页时给 <html> 加 .stage-on，离开时移除。 */
 html.stage-on .painting-img { transition: none; }
 
 /* ============================================================
@@ -401,6 +390,8 @@ html.stage-on .painting-img { transition: none; }
     rgba(13, 16, 8, 0) 30%,
     rgba(13, 16, 8, 0.82) 100%);
   opacity: 0;
+  /* 同上：全屏径向渐变逐帧改 opacity，必须走合成器 */
+  will-change: opacity;
 }
 
 /* 滚动留白（提供滚动距离），内容为固定图层 */
@@ -416,6 +407,9 @@ html.stage-on .painting-img { transition: none; }
   padding: 0 clamp(24px, 4.5vw, 72px);
   opacity: 0;
   pointer-events: none;
+  /* 浮现时的起始位移，由 stage.js 逐帧插值到 0 */
+  transform: translateY(14px);
+  will-change: opacity, transform;
 }
 .story-inner {
   width: 100%;
@@ -510,6 +504,12 @@ html.stage-on .painting-img { transition: none; }
 .float-list.can-scroll {
   -webkit-mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 56px), transparent 100%);
   mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 56px), transparent 100%);
+}
+
+/* 触屏没有 hover：wheel 拦截不生效，若再 contain 住滚动链，
+   列表滚到底就无法带动页面 —— 这里放开，交回原生滚动链 */
+@media (hover: none) {
+  .float-list { overscroll-behavior: auto; }
 }
 
 /* ---------- 区块定位微调 ---------- */

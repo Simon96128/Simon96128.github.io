@@ -11,61 +11,86 @@
   // 每次页面切换后刷新的元素引用
   var art, shade, cue, posts, contact, list, navLinks, lastActive = -1, hovering = false;
 
+  // 缓存测量结果：render() 每帧都要用，不能每帧读 scrollHeight（强制同步布局）
+  var maxScroll = 1;
+  var isNarrow = false;   // 窄屏降低画作缩放幅度，省填充率
+  var cueTimer = null;
+
   function clamp(v) { return Math.min(1, Math.max(0, v)); }
   function ease(t) { return t * t * (3 - 2 * t); }
 
   function measure() {
+    isNarrow = window.innerWidth <= 640;
+    maxScroll = Math.max(1, document.body.scrollHeight - window.innerHeight);
     if (list) { list.classList.toggle('can-scroll', list.scrollHeight > list.clientHeight + 4); }
   }
 
   function render() {
     var isPost = document.body.classList.contains('post-page');
     var y = window.scrollY || window.pageYOffset || 0;
-    var max = Math.max(1, document.body.scrollHeight - window.innerHeight);
     // 文章页固定用列表所在的进度（0.30），保证画作缩放/柔焦/暗化与列表完全一致
-    var t = isPost ? 0.30 : clamp(y / max);
+    var t = isPost ? 0.30 : clamp(y / maxScroll);
 
     // 画作：随滚动持续缩放 + 四周柔焦
     if (art) {
-      art.style.transform = 'translateX(var(--px, 0%)) scale(' + (1 + ease(t) * 1.05).toFixed(4) + ')';
+      var amp = isNarrow ? 0.55 : 1.05;
+      art.style.transform = 'translateX(var(--px, 0%)) scale(' + (1 + ease(t) * amp).toFixed(4) + ')';
       art.style.setProperty('--blur-o', ease(clamp(t / 0.75)).toFixed(3));
     }
     if (shade) { shade.style.opacity = (ease(clamp(t / 0.55)) * 0.62).toFixed(3); }
 
-    // 文章 / 联系：原地渐隐渐显
-    var postsOp = Math.min(clamp((t - 0.14) / 0.10), clamp((0.60 - t) / 0.10));
-    var contactOp = clamp((t - 0.60) / 0.14);
+    // 文章 / 联系：原地渐隐渐显 + 轻微上浮
+    // 两个区块在画面上不重叠（左上 / 右下），所以淡出与淡入可以并行交叉，
+    // 不再出现「文章走完了联系才进场」的空档
+    var postsOp = Math.min(clamp((t - 0.14) / 0.10), clamp((0.62 - t) / 0.12));
+    var contactOp = clamp((t - 0.50) / 0.16);
     if (posts) {
       posts.style.opacity = postsOp.toFixed(3);
+      posts.style.transform = 'translateY(' + ((1 - postsOp) * 16).toFixed(2) + 'px)';
       posts.style.pointerEvents = postsOp > 0.5 ? 'auto' : 'none';
     }
     if (contact) {
       contact.style.opacity = contactOp.toFixed(3);
+      contact.style.transform = 'translateY(' + ((1 - contactOp) * 20).toFixed(2) + 'px)';
       contact.style.pointerEvents = contactOp > 0.5 ? 'auto' : 'none';
     }
 
-    // 导航高亮跟随
-    var activeIdx = t >= 0.6 ? 2 : (t >= 0.14 ? 1 : 0);
+    // 导航高亮：在两段交叉的中点切换
+    var activeIdx = t >= 0.56 ? 2 : (t >= 0.14 ? 1 : 0);
     if (activeIdx !== lastActive && navLinks && navLinks.length) {
       lastActive = activeIdx;
       navLinks.forEach(function (a, i) { a.classList.toggle('active', i === activeIdx); });
     }
 
-    // 底部提示
+    // 底部提示：换文案时先淡出再淡入，避免硬切
     if (cue) {
       if (isPost) {
         cue.classList.remove('show');
       } else {
         var text = t < 0.14 ? '滚动 · 沿小路深入'
-          : (t < 0.6 ? '继续下滑 · 进入联系' : '上滑 · 返回文章');
-        if (cue.textContent !== text) { cue.textContent = text; }
-        cue.classList.add('show');
+          : (t < 0.56 ? '继续下滑 · 进入联系' : '上滑 · 返回文章');
+        if (cue.textContent !== text) {
+          if (cue.classList.contains('show')) {
+            cue.classList.remove('show');
+            clearTimeout(cueTimer);
+            cueTimer = setTimeout(function () {
+              if (cue) { cue.textContent = text; cue.classList.add('show'); }
+            }, 190);
+          } else {
+            // 首次出现：直接显示，不做淡出
+            cue.textContent = text;
+            cue.classList.add('show');
+          }
+        } else if (!cue.classList.contains('show')) {
+          cue.classList.add('show');
+        }
       }
     }
   }
 
   /* 重新收集当前页面的元素（每次 SPA 切换后调用） */
   function refresh() {
+    clearTimeout(cueTimer);
     art = document.querySelector('.painting-img');
     shade = document.querySelector('.stage-shade');
     cue = document.getElementById('cue');
@@ -74,6 +99,18 @@
     list = document.getElementById('postList');
     navLinks = Array.prototype.slice.call(document.querySelectorAll('[data-nav]'));
     lastActive = -1;
+
+    // 首页的画作缩放由本文件逐帧写入，必须关掉 CSS 的 transform 过渡，
+    // 否则缩放会滞后于滚动（见 style.css 里 .stage-on 的说明）
+    document.documentElement.classList.toggle('stage-on', !!posts);
+
+    // 列表内部滚动优先：用 mouseenter/mouseleave（不冒泡），
+    // 避免在列表项之间移动时 hovering 被误置为 false
+    if (list) {
+      list.addEventListener('mouseenter', function () { hovering = true; });
+      list.addEventListener('mouseleave', function () { hovering = false; });
+    }
+
     if (!shade) {
       shade = document.createElement('div');
       shade.className = 'stage-shade';
@@ -91,6 +128,8 @@
   }, { passive: true });
 
   window.addEventListener('resize', measure);
+  // 字体加载完成后文档高度会变，重新量一次
+  window.addEventListener('load', measure);
 
   // 文章列表内部滚动优先：列表内且未到边界时滚列表，到边界后带动页面
   window.addEventListener('wheel', function (e) {
@@ -102,13 +141,6 @@
       list.scrollTop += e.deltaY;
     }
   }, { passive: false });
-
-  document.addEventListener('mouseover', function (e) {
-    if (e.target && e.target.closest && e.target.closest('#postList')) { hovering = true; }
-  });
-  document.addEventListener('mouseout', function (e) {
-    if (e.target && e.target.closest && e.target.closest('#postList')) { hovering = false; }
-  });
 
   /* ---------- 无刷新导航 ---------- */
   var navigating = false;
@@ -136,8 +168,7 @@
 
           refresh();
           if (opts.scrollTo === 'posts') {
-            var max = Math.max(1, document.body.scrollHeight - window.innerHeight);
-            window.scrollTo(0, Math.round(max * 0.3));
+            window.scrollTo(0, Math.round(maxScroll * 0.3));
           } else {
             window.scrollTo(0, 0);
           }
@@ -180,9 +211,8 @@
     // 首页内：博客 / 联系 → 滚到对应进度（区块是固定定位，用进度定位）
     if (posts && (url.pathname === '/blog/' || url.pathname === '/contact/')) {
       e.preventDefault();
-      var max = Math.max(1, document.body.scrollHeight - window.innerHeight);
       var to = url.pathname === '/blog/' ? 0.30 : 0.80;
-      window.scrollTo({ top: Math.round(max * to), behavior: reduced ? 'auto' : 'smooth' });
+      window.scrollTo({ top: Math.round(maxScroll * to), behavior: reduced ? 'auto' : 'smooth' });
       return;
     }
 
@@ -209,8 +239,7 @@
     if (location.hash === '#posts') {
       try { history.scrollRestoration = 'manual'; } catch (e) {}
       var jump = function () {
-        var max = Math.max(1, document.body.scrollHeight - window.innerHeight);
-        window.scrollTo(0, Math.round(max * 0.3));
+        window.scrollTo(0, Math.round(maxScroll * 0.3));
         render();
       };
       jump();
