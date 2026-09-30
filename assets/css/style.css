@@ -409,8 +409,8 @@ html.stage-on .painting-img { transition: none; }
   pointer-events: none;
   /* 浮现时的上浮由 stage.js 逐帧写入 transform，这里不写静态初值 ——
      区块完全显示时 JS 会把 transform 置空，若 CSS 有值会把它顶回位移状态。
-     也刻意不加 will-change：.story 里装的全是文字，常驻合成层会让层内
-     文字降级为灰度抗锯齿（并可能沿用回退字体的栅格化结果不再重绘），
+     这里也刻意不写 will-change：过渡进行中 JS 会临时挂上走合成器，
+     静止后立刻撤销 —— 常驻合成层会让层内文字降级为灰度抗锯齿，
      表现为「文章 / 联系」发虚、像换了字体。 */
 }
 .story-inner {
@@ -432,7 +432,6 @@ html.stage-on .painting-img { transition: none; }
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-  overscroll-behavior: contain;
 }
 .float-list::-webkit-scrollbar { width: 6px; }
 .float-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 3px; }
@@ -506,12 +505,6 @@ html.stage-on .painting-img { transition: none; }
 .float-list.can-scroll {
   -webkit-mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 56px), transparent 100%);
   mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 56px), transparent 100%);
-}
-
-/* 触屏没有 hover：wheel 拦截不生效，若再 contain 住滚动链，
-   列表滚到底就无法带动页面 —— 这里放开，交回原生滚动链 */
-@media (hover: none) {
-  .float-list { overscroll-behavior: auto; }
 }
 
 /* ---------- 区块定位微调 ---------- */

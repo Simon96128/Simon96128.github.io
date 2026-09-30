@@ -9,7 +9,7 @@
   if (!reduced) { content.style.transition = 'opacity 0.3s ease'; }
 
   // 每次页面切换后刷新的元素引用
-  var art, shade, cue, posts, contact, list, navLinks, lastActive = -1, hovering = false;
+  var art, shade, cue, posts, contact, list, navLinks, lastActive = -1;
 
   // 缓存测量结果：render() 每帧都要用，不能每帧读 scrollHeight（强制同步布局）
   var maxScroll = 1;
@@ -20,14 +20,17 @@
   function ease(t) { return t * t * (3 - 2 * t); }
 
   /* 区块浮现：淡入 + 上浮。
-     完全显示后把 transform 清空 —— 只要元素上挂着 transform，
-     文字就可能被单独光栅化进图层、丢掉亚像素抗锯齿而发虚。
+     过渡进行中临时挂 will-change 提升为合成层，逐帧只做合成、不重绘全屏文字；
+     一旦静止（完全显示或完全隐藏）立即撤销 —— 元素常驻合成层或挂着
+     transform 时，文字会被单独光栅化、丢掉亚像素抗锯齿而发虚。
      只在值真正变化时才写样式，避免每帧无谓的样式失效。 */
   function rise(el, op, dist) {
     if (!el) { return; }
     el.style.opacity = op.toFixed(3);
     var v = op > 0.995 ? '' : 'translateY(' + ((1 - op) * dist).toFixed(2) + 'px)';
     if (el.riseV !== v) { el.riseV = v; el.style.transform = v; }
+    var wc = op > 0 && op <= 0.995 ? 'opacity, transform' : '';
+    if (el.riseWc !== wc) { el.riseWc = wc; el.style.willChange = wc; }
     el.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
   }
 
@@ -43,10 +46,14 @@
     // 文章页固定用列表所在的进度（0.30），保证画作缩放/柔焦/暗化与列表完全一致
     var t = isPost ? 0.30 : clamp(y / maxScroll);
 
-    // 画作：随滚动持续缩放 + 四周柔焦
+    // 画作：首页叙事与文章页由 JS 逐帧写 transform（文章页固定 t=0.30，值不变）；
+    // 归档/联系页完全不写 —— 交给 CSS 的 --px/--sc 走一次性 0.62s 平移过渡，
+    // 否则逐帧内联写入会撞上这条过渡，缩放永远滞后于滚动（拖尾）。
     if (art) {
-      var amp = isNarrow ? 0.55 : 1.05;
-      art.style.transform = 'translateX(var(--px, 0%)) scale(' + (1 + ease(t) * amp).toFixed(4) + ')';
+      if (posts || isPost) {
+        var amp = isNarrow ? 0.55 : 1.05;
+        art.style.transform = 'translateX(var(--px, 0%)) scale(' + (1 + ease(t) * amp).toFixed(4) + ')';
+      }
       art.style.setProperty('--blur-o', ease(clamp(t / 0.75)).toFixed(3));
     }
     if (shade) { shade.style.opacity = (ease(clamp(t / 0.55)) * 0.62).toFixed(3); }
@@ -107,12 +114,10 @@
     // 首页的画作缩放由本文件逐帧写入，必须关掉 CSS 的 transform 过渡，
     // 否则缩放会滞后于滚动（见 style.css 里 .stage-on 的说明）
     document.documentElement.classList.toggle('stage-on', !!posts);
-
-    // 列表内部滚动优先：用 mouseenter/mouseleave（不冒泡），
-    // 避免在列表项之间移动时 hovering 被误置为 false
-    if (list) {
-      list.addEventListener('mouseenter', function () { hovering = true; });
-      list.addEventListener('mouseleave', function () { hovering = false; });
+    // 归档/联系页画作归 CSS 所有：清掉叙事页留下的内联 transform，
+    // 让 .bg-* 的 --px/--sc（配 0.62s 过渡）接管进场的平移缩放
+    if (art && !posts && !document.body.classList.contains('post-page')) {
+      art.style.transform = '';
     }
 
     if (!shade) {
@@ -134,17 +139,6 @@
   window.addEventListener('resize', measure);
   // 字体加载完成后文档高度会变，重新量一次
   window.addEventListener('load', measure);
-
-  // 文章列表内部滚动优先：列表内且未到边界时滚列表，到边界后带动页面
-  window.addEventListener('wheel', function (e) {
-    if (!hovering || !list) { return; }
-    var canUp = list.scrollTop > 0;
-    var canDown = list.scrollTop + list.clientHeight < list.scrollHeight - 1;
-    if ((e.deltaY > 0 && canDown) || (e.deltaY < 0 && canUp)) {
-      e.preventDefault();
-      list.scrollTop += e.deltaY;
-    }
-  }, { passive: false });
 
   /* ---------- 无刷新导航 ---------- */
   var navigating = false;
