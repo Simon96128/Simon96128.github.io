@@ -407,9 +407,11 @@ html.stage-on .painting-img { transition: none; }
   padding: 0 clamp(24px, 4.5vw, 72px);
   opacity: 0;
   pointer-events: none;
-  /* 浮现时的起始位移，由 stage.js 逐帧插值到 0 */
-  transform: translateY(14px);
-  will-change: opacity, transform;
+  /* 浮现时的上浮由 stage.js 逐帧写入 transform，这里不写静态初值 ——
+     区块完全显示时 JS 会把 transform 置空，若 CSS 有值会把它顶回位移状态。
+     也刻意不加 will-change：.story 里装的全是文字，常驻合成层会让层内
+     文字降级为灰度抗锯齿（并可能沿用回退字体的栅格化结果不再重绘），
+     表现为「文章 / 联系」发虚、像换了字体。 */
 }
 .story-inner {
   width: 100%;

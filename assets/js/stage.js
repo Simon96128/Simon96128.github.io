@@ -19,6 +19,18 @@
   function clamp(v) { return Math.min(1, Math.max(0, v)); }
   function ease(t) { return t * t * (3 - 2 * t); }
 
+  /* 区块浮现：淡入 + 上浮。
+     完全显示后把 transform 清空 —— 只要元素上挂着 transform，
+     文字就可能被单独光栅化进图层、丢掉亚像素抗锯齿而发虚。
+     只在值真正变化时才写样式，避免每帧无谓的样式失效。 */
+  function rise(el, op, dist) {
+    if (!el) { return; }
+    el.style.opacity = op.toFixed(3);
+    var v = op > 0.995 ? '' : 'translateY(' + ((1 - op) * dist).toFixed(2) + 'px)';
+    if (el.riseV !== v) { el.riseV = v; el.style.transform = v; }
+    el.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
+  }
+
   function measure() {
     isNarrow = window.innerWidth <= 640;
     maxScroll = Math.max(1, document.body.scrollHeight - window.innerHeight);
@@ -44,16 +56,8 @@
     // 不再出现「文章走完了联系才进场」的空档
     var postsOp = Math.min(clamp((t - 0.14) / 0.10), clamp((0.62 - t) / 0.12));
     var contactOp = clamp((t - 0.50) / 0.16);
-    if (posts) {
-      posts.style.opacity = postsOp.toFixed(3);
-      posts.style.transform = 'translateY(' + ((1 - postsOp) * 16).toFixed(2) + 'px)';
-      posts.style.pointerEvents = postsOp > 0.5 ? 'auto' : 'none';
-    }
-    if (contact) {
-      contact.style.opacity = contactOp.toFixed(3);
-      contact.style.transform = 'translateY(' + ((1 - contactOp) * 20).toFixed(2) + 'px)';
-      contact.style.pointerEvents = contactOp > 0.5 ? 'auto' : 'none';
-    }
+    rise(posts, postsOp, 16);
+    rise(contact, contactOp, 20);
 
     // 导航高亮：在两段交叉的中点切换
     var activeIdx = t >= 0.56 ? 2 : (t >= 0.14 ? 1 : 0);
