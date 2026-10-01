@@ -1,8 +1,5 @@
-/* 网页字体：思源宋体（Noto Serif SC），jsDelivr 分包按需加载 */
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/index.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/600.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/900.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/zcool-xiaowei@5/index.css");
+/* 网页字体在 _layouts/default.html 里用 <link> 并行加载（jsDelivr 分包按需）；
+   @import 链是串行阻塞的，换页首次渲染会明显变慢 */
 
 /* ============================================================
    手卷 · Simon96128.github.io
@@ -277,19 +274,26 @@ pre code { background: none; border: 0; padding: 0; }
 
 
 
-/* 径向柔焦：模糊版画作叠在上层，遮罩只在四周显示（中心露出清晰底层） */
+/* 径向柔焦：模糊版画作叠在上层，中心露出清晰底层。
+   「中心透明、四周不透明」的径向遮罩已烘焙进 webp 的 alpha 通道
+   （按各自断点的 cover 裁切换算，焦点钉在画作上），画作逐帧缩放时
+   不再需要浏览器实时合成 CSS mask —— Safari/Chromium 都省一条
+   全屏蒙版管线。桌面与竖屏 cover 可视宽度占比差近 3.5 倍，
+   故烘两份，按断点切换 */
 .painting-img::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("../images/bg-hero-blur.jpg") center / cover no-repeat;
-  /* 中心清晰区收窄 → 四周虚化带更宽更明显 */
-  -webkit-mask-image: radial-gradient(ellipse 46% 46% at 66% 54%, transparent 40%, #000 92%);
-  mask-image: radial-gradient(ellipse 46% 46% at 66% 54%, transparent 40%, #000 92%);
+  background: url("../images/bg-hero-blur.webp") center / cover no-repeat;
   opacity: var(--blur-o, 0);
   pointer-events: none;
   /* 提升为合成层：逐帧改 opacity 时只做合成，不重绘全屏渐变 */
   will-change: opacity;
+}
+@media (max-width: 640px) {
+  .painting-img::after {
+    background-image: url("../images/bg-hero-blur-m.webp");
+  }
 }
 
 /* ---------- 联系页 ---------- */
